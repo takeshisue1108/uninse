@@ -213,8 +213,15 @@
   }
   .translate-btn:hover { background: var(--btn-post-bg-hover); }
   .translate-btn:active { background: var(--btn-post-bg-active); }
-  /* 「ウニ語共有URLをコピー」は「訳す」と同じ見た目（owner, 2026-09-27）。結果カードの一番上なので上の余白だけ詰める */
-  #urlCopyBtn { margin-top: 0; }
+  /* 結果カードの一番上の 2 つ。「Xでウニする」は「訳す」と同じ塗り、「ウニ語共有URLをコピー」は同じ青の枠で中は白（owner, 2026-09-27）。上の余白だけ詰める */
+  #xShareBtn, #urlCopyBtn { margin-top: 0; }
+  .outline-btn {
+    background: var(--btn-copy-bg);
+    color: var(--btn-post-bg);
+    border: 1px solid var(--btn-post-bg);
+  }
+  .outline-btn:hover { background: var(--icon-bg-hover); color: var(--btn-post-bg-hover); }
+  .outline-btn:active { background: var(--icon-bg-hover); color: var(--btn-post-bg-active); }
 
   button:focus-visible, textarea:focus-visible, a:focus-visible {
     outline: 2px solid var(--accent);
@@ -436,8 +443,9 @@
     </section>
 
     <section class="result-card card" id="resultCard">
-      <div class="send-actions" id="sendActions">
-        <button type="button" class="translate-btn" id="urlCopyBtn">ウニ語共有URLをコピー</button>
+      <div class="send-actions" id="sendActions" hidden>
+        <button type="button" class="translate-btn" id="xShareBtn">X（旧 Twitter）でウニする</button>
+        <button type="button" class="translate-btn outline-btn" id="urlCopyBtn">ウニ語共有URLをコピー</button>
         <div class="url-note">
           <p>ウニ語はウニンセにしかよめないので、その点ご配慮くださいますよ</p>
           <p>うに</p>
@@ -504,6 +512,7 @@
   var flusteredNote = $("flusteredNote");
   var sendActions = $("sendActions");
   var urlCopyBtn = $("urlCopyBtn");
+  var xShareBtn = $("xShareBtn");
   var explanationStrip = $("explanationStrip");
   var toast = $("toast");
   var audioEl = $("uniAudio");
@@ -661,7 +670,7 @@
     if (direction === "ja2uni") {
       srcInput.setAttribute("aria-label", "ここに書く（何語でもOK）");
       srcInput.placeholder = "うにです";
-      sendActions.hidden = false;
+      sendActions.hidden = true;
     } else {
       srcInput.setAttribute("aria-label", "ウニ語を貼る");
       srcInput.placeholder = "うウーうにぃウにぃウうーんうウーうにぃウうーにウーン";
@@ -715,8 +724,8 @@
     resultEmpty.hidden = false;
     flusteredNote.hidden = true;
     flusteredNote.innerHTML = "";
-    // EXP §2: 「ウニ語共有URLをコピー」 is on screen from the start in the 日本語 → ウニ語 direction
-    sendActions.hidden = direction !== "ja2uni";
+    // EXP §2: the send actions appear only after 訳す in the 日本語 → ウニ語 direction
+    sendActions.hidden = true;
     explanationStrip.hidden = true;
     explanationStrip.innerHTML = "";
   }
@@ -752,6 +761,8 @@
 
   function applyEncode(raw) {
     var uninseText = Uni.encode(raw);
+    lastSource = raw;
+    lastUninse = uninseText;
 
     banner.hidden = false;
     bannerLabel.textContent = "ウニ語にしました";
@@ -843,13 +854,27 @@
     return location.origin + location.pathname + "?" + Uni.packQuery(sourceText);
   }
 
+  // The send actions act on the message last translated, not on later edits to the input
+  var lastSource = "";
+  var lastUninse = "";
+
+  // ---- X share (owner, 2026-09-27) -------------------------------------------
+  var X_HEAD_CHARS = 10;
+  function xPostText() {
+    var chars = Array.from(lastUninse);
+    var head = chars.slice(0, X_HEAD_CHARS).join("");
+    if (chars.length > X_HEAD_CHARS) head += "...";
+    return "ウニンセがウニウニしてるよ かわいいね\nウニンセ「" + head + "」\n" +
+      shareUrl(lastSource) + " #トリッカル";
+  }
+  xShareBtn.addEventListener("click", function () {
+    var intent = "https://x.com/intent/post?text=" + encodeURIComponent(xPostText());
+    window.open(intent, "_blank", "noopener");
+  });
+
   // ---- URL copy --------------------------------------------------------------
   urlCopyBtn.addEventListener("click", function () {
-    if (srcInput.value.trim() === "") {
-      showHintToast(EMPTY_HINT_LINES);
-      return;
-    }
-    var url = shareUrl(srcInput.value);
+    var url = shareUrl(lastSource);
     copyText(url).then(function (ok) {
       showToast(ok ? COPY_OK : COPY_FAIL, ok ? null : "crying");
     });

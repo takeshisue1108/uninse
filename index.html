@@ -296,6 +296,8 @@
   }
   .translate-btn:hover { background: var(--btn-post-bg-hover); }
   .translate-btn:active { background: var(--btn-post-bg-active); }
+  /* 「URLをコピー」は「訳す」と同じ見た目（owner, 2026-09-27）。結果カードの一番上なので上の余白だけ詰める */
+  #urlCopyBtn { margin-top: 0; }
 
   button:focus-visible, textarea:focus-visible, a:focus-visible {
     outline: 2px solid var(--accent);
@@ -515,7 +517,7 @@
 
     <section class="result-card card" id="resultCard">
       <div class="send-actions" id="sendActions">
-        <button type="button" class="btn-copy" id="urlCopyBtn">URLをコピー</button>
+        <button type="button" class="translate-btn" id="urlCopyBtn">URLをコピー</button>
       </div>
 
       <p class="result-empty" id="resultEmpty">訳すとここに現れます</p>

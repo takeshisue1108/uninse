@@ -7,132 +7,132 @@
 <meta name="description" content="ウニ語と日本語の相互翻訳。トリッカルのファンが作った非公式の言語です。">
 <style>
   :root {
-    --bg: #f5f4f9;
-    --bg-dot: rgba(23, 21, 31, 0.07);
+    --bg: #f1f7fa;
+    --bg-dot: rgba(43, 58, 79, 0.10);
     --field: #ffffff;
-    --ink: #17151f;
-    --muted: #5f5d70;
-    --line: #847f97;
-    --card-border: #847f97;
-    --card-shadow: rgba(23, 21, 31, 0.10);
-    --chip-bg: #ece9f5;
-    --chip-border: #847f97;
-    --chip-text: #17151f;
+    --ink: #14161c;
+    --muted: #5b6572;
+    --line: #707b88;
+    --card-border: transparent;
+    --card-shadow: rgba(30, 45, 66, 0.14);
+    --chip-bg: #e7eef5;
+    --chip-border: #707b88;
+    --chip-text: #14161c;
 
-    --accent: #33409e;
+    --accent: #2563c9;
     --accent2: #632c2f;
-    --stroke-accent: #dbe0fd;
+    --stroke-accent: #e2edfb;
     --stroke-accent2: #f2d9d7;
-    --strip-bg: #dbe0fd;
+    --strip-bg: #e2edfb;
 
     --status-fit: #1c7a4c;
     --status-nofit: #ab2a22;
 
-    --icon-fg: #5f5d70;
-    --icon-fg-hover: #17151f;
-    --icon-bg-hover: rgba(51, 64, 158, 0.08);
+    --icon-fg: #5b6572;
+    --icon-fg-hover: #14161c;
+    --icon-bg-hover: rgba(37, 99, 201, 0.08);
 
-    --btn-post-bg: #33409e;
-    --btn-post-bg-hover: #28337f;
-    --btn-post-bg-active: #202868;
+    --btn-post-bg: #2563c9;
+    --btn-post-bg-hover: #1e50a3;
+    --btn-post-bg-active: #184084;
     --btn-post-text: #ffffff;
     --btn-copy-bg: #ffffff;
     --btn-copy-bg-hover: #f2d9d7;
     --btn-copy-border: #632c2f;
     --btn-copy-text: #632c2f;
-    --btn-copy-text-hover: #17151f;
+    --btn-copy-text-hover: #14161c;
 
-    --toast-bg: #17151f;
-    --toast-text: #f5f4f9;
+    --toast-bg: #14161c;
+    --toast-text: #f1f7fa;
 
     --stroke-art: transparent;
     --shadow-on-stroke: rgba(255, 255, 255, 0.55);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #120f17;
-      --bg-dot: rgba(236, 234, 243, 0.05);
-      --field: #1d1a24;
-      --ink: #eceaf3;
-      --muted: #aca8bf;
-      --line: #726d87;
-      --card-border: #726d87;
-      --card-shadow: rgba(8, 6, 14, 0.55);
-      --chip-bg: #241f2d;
-      --chip-border: #726d87;
-      --chip-text: #eceaf3;
+      --bg: #12161f;
+      --bg-dot: rgba(210, 220, 235, 0.05);
+      --field: #1b212c;
+      --ink: #e9edf4;
+      --muted: #a6afbd;
+      --line: #7a8798;
+      --card-border: transparent;
+      --card-shadow: rgba(4, 6, 10, 0.55);
+      --chip-bg: #212836;
+      --chip-border: #7a8798;
+      --chip-text: #e9edf4;
 
-      --accent: #8fa0ff;
+      --accent: #8ab4ff;
       --accent2: #e2918d;
-      --stroke-accent: #2a2f5c;
+      --stroke-accent: #1f2b45;
       --stroke-accent2: #4a2426;
-      --strip-bg: #2a2f5c;
+      --strip-bg: #1f2b45;
 
       --status-fit: #7fd9a8;
       --status-nofit: #f2a19c;
 
-      --icon-fg: #aca8bf;
-      --icon-fg-hover: #eceaf3;
-      --icon-bg-hover: rgba(143, 160, 255, 0.14);
+      --icon-fg: #a6afbd;
+      --icon-fg-hover: #e9edf4;
+      --icon-bg-hover: rgba(138, 180, 255, 0.14);
 
-      --btn-post-bg: #8fa0ff;
-      --btn-post-bg-hover: #a3b2ff;
-      --btn-post-bg-active: #b9c4ff;
-      --btn-post-text: #17151f;
-      --btn-copy-bg: #1d1a24;
+      --btn-post-bg: #8ab4ff;
+      --btn-post-bg-hover: #9dc0ff;
+      --btn-post-bg-active: #b0ccff;
+      --btn-post-text: #14161c;
+      --btn-copy-bg: #1b212c;
       --btn-copy-bg-hover: #4a2426;
       --btn-copy-border: #e2918d;
       --btn-copy-text: #e2918d;
-      --btn-copy-text-hover: #eceaf3;
+      --btn-copy-text-hover: #e9edf4;
 
-      --toast-bg: #eceaf3;
-      --toast-text: #120f17;
+      --toast-bg: #e9edf4;
+      --toast-text: #12161f;
 
       --stroke-art: #d4d2e2;
-      --shadow-on-stroke: rgba(18, 15, 23, 0.6);
+      --shadow-on-stroke: rgba(18, 22, 31, 0.6);
     }
   }
   :root[data-theme="dark"] {
-    --bg: #120f17;
-    --bg-dot: rgba(236, 234, 243, 0.05);
-    --field: #1d1a24;
-    --ink: #eceaf3;
-    --muted: #aca8bf;
-    --line: #726d87;
-    --card-border: #726d87;
-    --card-shadow: rgba(8, 6, 14, 0.55);
-    --chip-bg: #241f2d;
-    --chip-border: #726d87;
-    --chip-text: #eceaf3;
+    --bg: #12161f;
+    --bg-dot: rgba(210, 220, 235, 0.05);
+    --field: #1b212c;
+    --ink: #e9edf4;
+    --muted: #a6afbd;
+    --line: #7a8798;
+    --card-border: transparent;
+    --card-shadow: rgba(4, 6, 10, 0.55);
+    --chip-bg: #212836;
+    --chip-border: #7a8798;
+    --chip-text: #e9edf4;
 
-    --accent: #8fa0ff;
+    --accent: #8ab4ff;
     --accent2: #e2918d;
-    --stroke-accent: #2a2f5c;
+    --stroke-accent: #1f2b45;
     --stroke-accent2: #4a2426;
-    --strip-bg: #2a2f5c;
+    --strip-bg: #1f2b45;
 
     --status-fit: #7fd9a8;
     --status-nofit: #f2a19c;
 
-    --icon-fg: #aca8bf;
-    --icon-fg-hover: #eceaf3;
-    --icon-bg-hover: rgba(143, 160, 255, 0.14);
+    --icon-fg: #a6afbd;
+    --icon-fg-hover: #e9edf4;
+    --icon-bg-hover: rgba(138, 180, 255, 0.14);
 
-    --btn-post-bg: #8fa0ff;
-    --btn-post-bg-hover: #a3b2ff;
-    --btn-post-bg-active: #b9c4ff;
-    --btn-post-text: #17151f;
-    --btn-copy-bg: #1d1a24;
+    --btn-post-bg: #8ab4ff;
+    --btn-post-bg-hover: #9dc0ff;
+    --btn-post-bg-active: #b0ccff;
+    --btn-post-text: #14161c;
+    --btn-copy-bg: #1b212c;
     --btn-copy-bg-hover: #4a2426;
     --btn-copy-border: #e2918d;
     --btn-copy-text: #e2918d;
-    --btn-copy-text-hover: #eceaf3;
+    --btn-copy-text-hover: #e9edf4;
 
-    --toast-bg: #eceaf3;
-    --toast-text: #120f17;
+    --toast-bg: #e9edf4;
+    --toast-text: #12161f;
 
     --stroke-art: #d4d2e2;
-    --shadow-on-stroke: rgba(18, 15, 23, 0.6);
+    --shadow-on-stroke: rgba(18, 22, 31, 0.6);
   }
 
   * { box-sizing: border-box; }
@@ -202,17 +202,17 @@
     padding: 4px;
   }
 
-  /* cards */
+  /* cards: borderless, soft shadow only (nani?-style, COLOR_DESIGN_en.md §7) */
   .card {
     background: var(--field);
     border: 1px solid var(--card-border);
-    border-radius: 20px;
+    border-radius: 24px;
     box-shadow: 0 8px 20px var(--card-shadow);
     padding: 16px;
     margin: 0 0 14px;
   }
 
-  /* direction chips */
+  /* direction chips: dashed boundary (nani?-style, COLOR_DESIGN_en.md §7) */
   .chip-row {
     display: flex;
     align-items: center;
@@ -225,12 +225,13 @@
     font-size: 0.92rem;
     background: var(--chip-bg);
     color: var(--chip-text);
-    border: 1px solid var(--chip-border);
+    border: 1px dashed var(--chip-border);
     border-radius: 999px;
     padding: 6px 14px;
     cursor: pointer;
   }
   .chip[aria-pressed="true"] {
+    border-style: solid;
     border-color: var(--accent);
     font-weight: 600;
   }
@@ -402,6 +403,9 @@
     margin: 0 0 12px;
     flex-wrap: wrap;
   }
+  /* ボタンの下の小さめの注意書き（owner, 2026-09-27） */
+  .url-note { flex-basis: 100%; font-size: 0.8rem; color: var(--muted); }
+  .url-note p { margin: 0; }
   .btn-copy {
     font: inherit;
     font-size: 0.92rem;
@@ -421,7 +425,7 @@
     align-items: center;
     gap: 10px;
     background: var(--strip-bg);
-    border-radius: 46% 54% 50% 50% / 58% 42% 58% 42%;
+    border-radius: 16px; /* nani? の帯と同じ角丸の長方形 */
     padding: 12px 16px;
     margin: 0 0 20px;
   }
@@ -518,6 +522,10 @@
     <section class="result-card card" id="resultCard">
       <div class="send-actions" id="sendActions">
         <button type="button" class="translate-btn" id="urlCopyBtn">URLをコピー</button>
+        <div class="url-note">
+          <p>ウニ語はウニンセにしかよめないので、その点ご配慮くださいますよ</p>
+          <p>うに</p>
+        </div>
       </div>
 
       <p class="result-empty" id="resultEmpty">訳すとここに現れます</p>
@@ -528,7 +536,7 @@
     </section>
   </div>
 
-  <section id="explanationStrip" hidden></section>
+  <section id="explanationStrip" class="explanation-strip" hidden></section>
 
   <footer class="footer">
     <ul>

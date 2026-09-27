@@ -1,0 +1,376 @@
+// uni.js — the ウニ語 codec, plus pure sound-sequence/WAV logic. No DOM, no
+// globals beyond `Uni`. Works as a classic script in the browser
+// (window.Uni) and as a CommonJS module in Node (module.exports), exactly
+// like v1's uninse.js did.
+(function (root) {
+  "use strict";
+
+  // §3.1 — the digit table. head = upper 2 bits, tail = lower 2 bits.
+  var HEADS = ["う", "ウ", "に", "二"]; // 00, 01, 10, 11
+  var TAILS = ["にぃ", "ニィ", "うー", "ウー"]; // 00, 01, 10, 11
+
+  // digit (0-15) -> 3-character ウニ語 token
+  function digitToDigitToken(d) {
+    var head = (d >> 2) & 0b11;
+    var tail = d & 0b11;
+    return HEADS[head] + TAILS[tail];
+  }
+
+  // reverse lookup: (head, tail) -> 0-15, or -1 if not a valid pair
+  function reverseLookup(head, tail) {
+    var h = HEADS.indexOf(head);
+    var t = TAILS.indexOf(tail);
+    if (h === -1 || t === -1) return -1;
+    return (h << 2) | t;
+  }
+
+  var HEX_CHARS = "0123456789abcdef";
+
+  // §3.2 — encode(text)
+  function encode(text) {
+    var chars = Array.from(text); // codePointAt-aware iteration
+    if (chars.length === 0) return "";
+    var tokens = [];
+    for (var i = 0; i < chars.length; i++) {
+      var ch = chars[i];
+      var cp = ch.codePointAt(0);
+      var hex = cp.toString(16); // lowercase, no leading zeros
+      var tok = "";
+      for (var j = 0; j < hex.length; j++) {
+        var d = parseInt(hex[j], 16);
+        tok += digitToDigitToken(d);
+      }
+      tokens.push(tok);
+    }
+    return tokens.join("ん") + "ン";
+  }
+
+  // whitespace stripped in decode's step 1 (global strip, not a trim)
+  var WHITESPACE_RE = /[ \t\n\r　]/g;
+
+  function stripWhitespace(s) {
+    return s.replace(WHITESPACE_RE, "");
+  }
+
+  // §3.3 — decode(text)
+  function decode(text) {
+    // Step 0 — the secret trick, before anything else.
+    var trimmed = text.trim();
+    if (trimmed === "くり") {
+      return { text: "たる", invalid: [], secretTrick: true };
+    }
+
+    // Step 1 — normalize (global whitespace strip).
+    var normalized = stripWhitespace(text);
+    if (normalized === "") {
+      return { text: "", invalid: [], secretTrick: false };
+    }
+
+    // Step 2 — split into character spans on ん/ン (both are boundaries).
+    // Encode always ends the whole message with one terminating marker
+    // (§3.2: "ん between characters, ン once, at the very end"), so a
+    // naive split leaves one trailing empty element that represents
+    // "nothing after the terminator" rather than a real empty span — drop
+    // exactly that one trailing artifact. A doubled separator elsewhere in
+    // the string still produces a genuine empty span (invalid), and a
+    // missing final marker (EXP §6's leniency) already leaves no trailing
+    // empty element to drop, so both cases are unaffected by this.
+    var spans = normalized.split(/[んン]/);
+    if (spans.length > 1 && spans[spans.length - 1] === "") {
+      spans.pop();
+    }
+
+    // Step 3 — validate and resolve each span.
+    var results = []; // per-span: { ok: bool, text: resolved-or-"〔?〕", raw }
+    var invalid = [];
+    for (var s = 0; s < spans.length; s++) {
+      var span = spans[s];
+      var ok = true;
+      var resolved = "";
+
+      if (span === "") {
+        ok = false;
+      } else if (span.length % 3 !== 0) {
+        ok = false;
+      } else {
+        var hexDigits = "";
+        for (var g = 0; g * 3 < span.length && ok; g++) {
+          var head = span.substr(g * 3, 1);
+          var tail = span.substr(g * 3 + 1, 2);
+          var digit = reverseLookup(head, tail);
+          if (digit === -1) {
+            ok = false;
+            break;
+          }
+          hexDigits += HEX_CHARS[digit];
+        }
+        if (ok) {
+          if (hexDigits.length > 1 && hexDigits[0] === "0") {
+            ok = false; // leading zero, never emitted by encode
+          } else {
+            var cp = parseInt(hexDigits, 16);
+            if (cp > 0x10ffff) {
+              ok = false;
+            } else if (cp >= 0xd800 && cp <= 0xdfff) {
+              ok = false; // lone surrogate, not a scalar value
+            } else {
+              resolved = String.fromCodePoint(cp);
+            }
+          }
+        }
+      }
+
+      if (ok) {
+        results.push({ ok: true, text: resolved });
+      } else {
+        results.push({ ok: false, text: "〔?〕", raw: span });
+        invalid.push({ index: s + 1, raw: span }); // 1-based
+      }
+    }
+
+    // Step 4 — assemble. `spanCount` lets the caller derive the partial-vs-
+    // total distinction as `invalid.length === spanCount` (§9's own test
+    // wording), rather than the codec inventing a separate flag for it.
+    var restored = results.map(function (r) { return r.text; }).join("");
+    return { text: restored, invalid: invalid, secretTrick: false, spanCount: spans.length };
+  }
+
+  // §3.4 — head-position matching is exact-string against HEADS (kanji 二,
+  // not katakana ニ, which only ever appears inside the tail spelling ニィ).
+  // No extra leniency is added here; already implemented by reverseLookup.
+
+  // §3.5 — sound-sequence functions (pure). A "key" is one of the 18
+  // strings "0".."9","a".."f","n","N" — the same keys voice.js's clip map
+  // is indexed by.
+  function soundKeysForEncode(text) {
+    var chars = Array.from(text);
+    if (chars.length === 0) return [];
+    var keys = [];
+    for (var i = 0; i < chars.length; i++) {
+      var ch = chars[i];
+      var cp = ch.codePointAt(0);
+      var hex = cp.toString(16);
+      for (var j = 0; j < hex.length; j++) keys.push(hex[j]);
+      keys.push(i === chars.length - 1 ? "N" : "n");
+    }
+    return keys;
+  }
+
+  function splitIntoSpansWithSeparators(normalized) {
+    // Same split as decode()'s Step 2, but each span keeps its own trailing
+    // separator character ("n" for ん, "N" for ン, or null if none follows
+    // — either because the string simply ended, or because this is the
+    // artifact trailing element after the final terminator, which carries
+    // no body and is dropped exactly like decode() drops it).
+    var out = [];
+    var body = "";
+    for (var i = 0; i < normalized.length; i++) {
+      var ch = normalized[i];
+      if (ch === "ん" || ch === "ン") {
+        out.push({ body: body, sep: ch === "ん" ? "n" : "N" });
+        body = "";
+      } else {
+        body += ch;
+      }
+    }
+    if (body !== "") out.push({ body: body, sep: null });
+    return out;
+  }
+
+  function spanIsPlayable(span) {
+    // §3.5: "playable" ignores the final code-point-range checks — a span
+    // whose head/tail characters all match is playable even if it later
+    // turns out to encode a lone surrogate or an out-of-range code point,
+    // since the sound only cares about which of the 16 digit clips to play.
+    if (span === "" || span.length % 3 !== 0) return null;
+    var hexDigits = "";
+    for (var g = 0; g * 3 < span.length; g++) {
+      var head = span.substr(g * 3, 1);
+      var tail = span.substr(g * 3 + 1, 2);
+      var digit = reverseLookup(head, tail);
+      if (digit === -1) return null;
+      hexDigits += HEX_CHARS[digit];
+    }
+    return hexDigits;
+  }
+
+  function soundKeysForDecode(text) {
+    var normalized = stripWhitespace(text);
+    if (normalized === "") return [];
+    var spans = splitIntoSpansWithSeparators(normalized);
+    var keys = [];
+    for (var i = 0; i < spans.length; i++) {
+      var body = spans[i].body;
+      var sep = spans[i].sep;
+      var hexDigits = spanIsPlayable(body);
+      if (hexDigits !== null) {
+        for (var j = 0; j < hexDigits.length; j++) keys.push(hexDigits[j]);
+        if (sep !== null) keys.push(sep);
+      }
+      // else: invalid span — push nothing (skipped in the sound exactly as
+      // it is shown as 〔?〕 in the text)
+    }
+    return keys;
+  }
+
+  // buildWav(keyBuffers, opts) — pure, audio-shaped. keyBuffers is an
+  // ordered array of Int16Array (one per key already resolved by the
+  // caller). opts = { sampleRate, leadingSilenceMs, gapMs, capSeconds,
+  // fadeSeconds }.
+  function buildWav(keyBuffers, opts) {
+    var sampleRate = opts.sampleRate;
+    var leadingSilenceMs = opts.leadingSilenceMs || 0;
+    var gapMs = opts.gapMs || 0;
+    var capSeconds = opts.capSeconds;
+    var fadeSeconds = opts.fadeSeconds || 0;
+
+    var leadingSamples = Math.round((leadingSilenceMs / 1000) * sampleRate);
+    var gapSamples = Math.round((gapMs / 1000) * sampleRate);
+
+    var totalLen = leadingSamples;
+    for (var i = 0; i < keyBuffers.length; i++) {
+      totalLen += keyBuffers[i].length;
+      if (i < keyBuffers.length - 1) totalLen += gapSamples;
+    }
+
+    var samples = new Int16Array(totalLen);
+    var pos = leadingSamples; // leading silence is already zero-filled
+    for (var k = 0; k < keyBuffers.length; k++) {
+      var buf = keyBuffers[k];
+      samples.set(buf, pos);
+      pos += buf.length;
+      if (k < keyBuffers.length - 1) pos += gapSamples; // gap stays zero
+    }
+
+    if (typeof capSeconds === "number") {
+      var capLen = Math.round(capSeconds * sampleRate);
+      if (samples.length > capLen) {
+        samples = samples.slice(0, capLen);
+        var fadeLen = Math.round(fadeSeconds * sampleRate);
+        if (fadeLen > 0) {
+          var fadeStart = Math.max(0, samples.length - fadeLen);
+          var actualFadeLen = samples.length - fadeStart;
+          for (var f = 0; f < actualFadeLen; f++) {
+            var ramp = actualFadeLen <= 1 ? 0 : 1 - f / (actualFadeLen - 1);
+            samples[fadeStart + f] = Math.round(samples[fadeStart + f] * ramp);
+          }
+        }
+      }
+    }
+
+    return pcmToWavBytes(samples, sampleRate);
+  }
+
+  function pcmToWavBytes(samples, sampleRate) {
+    var numChannels = 1;
+    var bitsPerSample = 16;
+    var byteRate = sampleRate * numChannels * (bitsPerSample / 8);
+    var blockAlign = numChannels * (bitsPerSample / 8);
+    var dataSize = samples.length * (bitsPerSample / 8);
+    var buffer = new ArrayBuffer(44 + dataSize);
+    var view = new DataView(buffer);
+
+    function writeString(offset, str) {
+      for (var i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+    }
+
+    writeString(0, "RIFF");
+    view.setUint32(4, 36 + dataSize, true);
+    writeString(8, "WAVE");
+    writeString(12, "fmt ");
+    view.setUint32(16, 16, true); // Subchunk1Size (PCM)
+    view.setUint16(20, 1, true); // AudioFormat (PCM)
+    view.setUint16(22, numChannels, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, byteRate, true);
+    view.setUint16(32, blockAlign, true);
+    view.setUint16(34, bitsPerSample, true);
+    writeString(36, "data");
+    view.setUint32(40, dataSize, true);
+
+    var offset = 44;
+    for (var i = 0; i < samples.length; i++) {
+      view.setInt16(offset, samples[i], true);
+      offset += 2;
+    }
+
+    return new Uint8Array(buffer);
+  }
+
+  // --- Share link query (SPEC §6) ----------------------------------------
+  var LETTERS = "abcdefghijklmnop"; // 16 letters, index 0-15
+
+  function digitToLetter(d) {
+    return LETTERS[(d + 7) % 16];
+  }
+
+  function letterToDigit(L) {
+    var i = LETTERS.indexOf(L);
+    return i === -1 ? -1 : (i - 7 + 16) % 16;
+  }
+
+  // §6.1 — packQuery(text)
+  function packQuery(text) {
+    var chars = Array.from(text); // code-point-aware, same iteration as encode()
+    var groups = [];
+    for (var i = 0; i < chars.length; i++) {
+      var cp = chars[i].codePointAt(0);
+      var hex = cp.toString(16); // lowercase, no leading zeros
+      var g = "";
+      for (var j = 0; j < hex.length; j++) {
+        g += digitToLetter(parseInt(hex[j], 16));
+      }
+      groups.push(g);
+    }
+    return groups.join("z"); // per-character groups joined by the letter "z"
+  }
+
+  var QUERY_SHAPE_RE = /^[a-p]+(z[a-p]+)*$/;
+
+  // §6.2 — unpackQuery(raw). raw = the query content, "?" already stripped,
+  // and everything from the first "&" onward already cut off by the caller.
+  function unpackQuery(raw) {
+    if (typeof raw !== "string" || !QUERY_SHAPE_RE.test(raw)) return null;
+    var groups = raw.split("z");
+    var chars = [];
+    for (var i = 0; i < groups.length; i++) {
+      var group = groups[i];
+      var hex = "";
+      var bad = false;
+      for (var j = 0; j < group.length; j++) {
+        var d = letterToDigit(group[j]);
+        if (d === -1) { bad = true; break; } // unreachable given the regex above
+        hex += HEX_CHARS[d];
+      }
+      if (bad) return null;
+      var cp = parseInt(hex, 16);
+      if (cp > 0x10ffff) return null; // out of Unicode range
+      if (cp >= 0xd800 && cp <= 0xdfff) return null; // lone surrogate
+      chars.push(String.fromCodePoint(cp));
+    }
+    return chars.join("");
+  }
+
+  var Uni = {
+    encode: encode,
+    decode: decode,
+    digitToDigitToken: digitToDigitToken,
+    reverseLookup: reverseLookup,
+    HEADS: HEADS,
+    TAILS: TAILS,
+
+    soundKeysForEncode: soundKeysForEncode,
+    soundKeysForDecode: soundKeysForDecode,
+    buildWav: buildWav,
+
+    packQuery: packQuery,
+    unpackQuery: unpackQuery,
+  };
+
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = Uni;
+  }
+  if (root) {
+    root.Uni = Uni;
+  }
+})(typeof window !== "undefined" ? window : (typeof globalThis !== "undefined" ? globalThis : this));

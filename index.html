@@ -1,0 +1,1004 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Uni?! 翻訳</title>
+<meta name="description" content="ウニ語と日本語の相互翻訳。トリッカルのファンが作った非公式の言語です。">
+<style>
+  :root {
+    --bg: #f5f4f9;
+    --bg-dot: rgba(23, 21, 31, 0.07);
+    --field: #ffffff;
+    --ink: #17151f;
+    --muted: #5f5d70;
+    --line: #847f97;
+    --card-border: #847f97;
+    --card-shadow: rgba(23, 21, 31, 0.10);
+    --chip-bg: #ece9f5;
+    --chip-border: #847f97;
+    --chip-text: #17151f;
+
+    --accent: #33409e;
+    --accent2: #632c2f;
+    --stroke-accent: #dbe0fd;
+    --stroke-accent2: #f2d9d7;
+    --strip-bg: #dbe0fd;
+
+    --status-fit: #1c7a4c;
+    --status-nofit: #ab2a22;
+
+    --icon-fg: #5f5d70;
+    --icon-fg-hover: #17151f;
+    --icon-bg-hover: rgba(51, 64, 158, 0.08);
+
+    --btn-post-bg: #33409e;
+    --btn-post-bg-hover: #28337f;
+    --btn-post-bg-active: #202868;
+    --btn-post-text: #ffffff;
+    --btn-copy-bg: #ffffff;
+    --btn-copy-bg-hover: #f2d9d7;
+    --btn-copy-border: #632c2f;
+    --btn-copy-text: #632c2f;
+    --btn-copy-text-hover: #17151f;
+
+    --toast-bg: #17151f;
+    --toast-text: #f5f4f9;
+
+    --stroke-art: transparent;
+    --shadow-on-stroke: rgba(255, 255, 255, 0.55);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #120f17;
+      --bg-dot: rgba(236, 234, 243, 0.05);
+      --field: #1d1a24;
+      --ink: #eceaf3;
+      --muted: #aca8bf;
+      --line: #726d87;
+      --card-border: #726d87;
+      --card-shadow: rgba(8, 6, 14, 0.55);
+      --chip-bg: #241f2d;
+      --chip-border: #726d87;
+      --chip-text: #eceaf3;
+
+      --accent: #8fa0ff;
+      --accent2: #e2918d;
+      --stroke-accent: #2a2f5c;
+      --stroke-accent2: #4a2426;
+      --strip-bg: #2a2f5c;
+
+      --status-fit: #7fd9a8;
+      --status-nofit: #f2a19c;
+
+      --icon-fg: #aca8bf;
+      --icon-fg-hover: #eceaf3;
+      --icon-bg-hover: rgba(143, 160, 255, 0.14);
+
+      --btn-post-bg: #8fa0ff;
+      --btn-post-bg-hover: #a3b2ff;
+      --btn-post-bg-active: #b9c4ff;
+      --btn-post-text: #17151f;
+      --btn-copy-bg: #1d1a24;
+      --btn-copy-bg-hover: #4a2426;
+      --btn-copy-border: #e2918d;
+      --btn-copy-text: #e2918d;
+      --btn-copy-text-hover: #eceaf3;
+
+      --toast-bg: #eceaf3;
+      --toast-text: #120f17;
+
+      --stroke-art: #d4d2e2;
+      --shadow-on-stroke: rgba(18, 15, 23, 0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #120f17;
+    --bg-dot: rgba(236, 234, 243, 0.05);
+    --field: #1d1a24;
+    --ink: #eceaf3;
+    --muted: #aca8bf;
+    --line: #726d87;
+    --card-border: #726d87;
+    --card-shadow: rgba(8, 6, 14, 0.55);
+    --chip-bg: #241f2d;
+    --chip-border: #726d87;
+    --chip-text: #eceaf3;
+
+    --accent: #8fa0ff;
+    --accent2: #e2918d;
+    --stroke-accent: #2a2f5c;
+    --stroke-accent2: #4a2426;
+    --strip-bg: #2a2f5c;
+
+    --status-fit: #7fd9a8;
+    --status-nofit: #f2a19c;
+
+    --icon-fg: #aca8bf;
+    --icon-fg-hover: #eceaf3;
+    --icon-bg-hover: rgba(143, 160, 255, 0.14);
+
+    --btn-post-bg: #8fa0ff;
+    --btn-post-bg-hover: #a3b2ff;
+    --btn-post-bg-active: #b9c4ff;
+    --btn-post-text: #17151f;
+    --btn-copy-bg: #1d1a24;
+    --btn-copy-bg-hover: #4a2426;
+    --btn-copy-border: #e2918d;
+    --btn-copy-text: #e2918d;
+    --btn-copy-text-hover: #eceaf3;
+
+    --toast-bg: #eceaf3;
+    --toast-text: #120f17;
+
+    --stroke-art: #d4d2e2;
+    --shadow-on-stroke: rgba(18, 15, 23, 0.6);
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { background: var(--bg); }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(var(--bg-dot) 1px, transparent 1px) 0 0 / 18px 18px,
+      var(--bg);
+    color: var(--ink);
+    font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", "Segoe UI", sans-serif;
+    line-height: 1.7;
+    min-width: 280px;
+  }
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 24px 16px 56px;
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* header */
+  .app-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 4px 0 20px;
+  }
+  .app-header h1 {
+    font-size: 1.4rem;
+    margin: 0;
+    color: var(--ink);
+  }
+  .brush {
+    position: relative;
+    display: inline-block;
+  }
+  .brush::before {
+    content: "";
+    position: absolute;
+    inset: -6% -8%;
+    background: var(--stroke-accent);
+    border-radius: 46% 54% 52% 48% / 58% 44% 56% 42%;
+    z-index: -1;
+  }
+  h1.brush { padding: 2px 14px; }
+  h1.brush span {
+    position: relative;
+    text-shadow: 0 1px 3px var(--shadow-on-stroke);
+  }
+
+  .art-stroke {
+    background: var(--stroke-art);
+    border-radius: 44% 56% 50% 50% / 50% 46% 54% 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+  }
+
+  /* cards */
+  .card {
+    background: var(--field);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    box-shadow: 0 8px 20px var(--card-shadow);
+    padding: 16px;
+    margin: 0 0 14px;
+  }
+
+  /* direction chips */
+  .chip-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .chip {
+    font: inherit;
+    font-size: 0.92rem;
+    background: var(--chip-bg);
+    color: var(--chip-text);
+    border: 1px solid var(--chip-border);
+    border-radius: 999px;
+    padding: 6px 14px;
+    cursor: pointer;
+  }
+  .chip[aria-pressed="true"] {
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .swap-btn {
+    font: inherit;
+    font-size: 1.1rem;
+    line-height: 1;
+    background: var(--chip-bg);
+    color: var(--accent);
+    border: 1px solid var(--chip-border);
+    border-radius: 999px;
+    width: 34px; height: 34px;
+    cursor: pointer;
+  }
+
+  textarea {
+    display: block;
+    width: 100%;
+    min-height: 110px;
+    font: inherit;
+    font-size: 1rem;
+    color: var(--ink);
+    background: var(--field);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 12px;
+    resize: vertical;
+  }
+
+  .icon-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .icon-btn {
+    font: inherit;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    color: var(--icon-fg);
+    border: none;
+    border-radius: 999px;
+    padding: 6px 10px;
+    cursor: pointer;
+  }
+  .icon-btn:hover { background: var(--icon-bg-hover); color: var(--icon-fg-hover); }
+
+  .translate-btn {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    font: inherit;
+    font-weight: 600;
+    font-size: 1rem;
+    background: var(--btn-post-bg);
+    color: var(--btn-post-text);
+    border: none;
+    border-radius: 999px;
+    padding: 10px 16px;
+    cursor: pointer;
+  }
+  .translate-btn:hover { background: var(--btn-post-bg-hover); }
+  .translate-btn:active { background: var(--btn-post-bg-active); }
+
+  button:focus-visible, textarea:focus-visible, a:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* translated banner */
+  .banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 4px;
+    margin: 4px 0 10px;
+    flex-wrap: wrap;
+  }
+  .banner-icon-wrap {
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    flex: none;
+    background: var(--stroke-art);
+    border-radius: 44% 56% 50% 50% / 50% 46% 54% 50%;
+  }
+  .header-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--stroke-art);
+    border-radius: 44% 56% 50% 50% / 50% 46% 54% 50%;
+    padding: 2px;
+  }
+  .banner-icon.spinning {
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .banner-label {
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+
+  /* sound: ウニ語読み上げ (non-button, EXP §3) */
+  .sound-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+  .sound-glyph {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 12px;
+  }
+  .sound-glyph span {
+    width: 2px;
+    background: var(--accent);
+    display: inline-block;
+    height: 4px;
+    animation: soundwave 0.9s ease-in-out infinite;
+  }
+  .sound-glyph span:nth-child(2) { animation-delay: 0.15s; }
+  .sound-glyph span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes soundwave {
+    0%, 100% { height: 4px; }
+    50% { height: 12px; }
+  }
+
+  /* result card */
+  .result-empty {
+    color: var(--muted);
+    margin: 4px 0 0;
+  }
+  .result-text {
+    margin: 4px 0 0;
+    font-size: 1.08rem;
+    word-break: break-word;
+    white-space: pre-wrap;
+  }
+  .result-text .tok-invalid { color: var(--status-nofit); }
+
+  .flustered-note {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .flustered-note p { margin: 0; color: var(--ink); font-size: 0.9rem; }
+  .flustered-raw {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 0.82rem;
+    word-break: break-all;
+  }
+
+  .send-actions {
+    display: flex;
+    gap: 8px;
+    margin: 0 0 12px;
+    flex-wrap: wrap;
+  }
+  .btn-copy {
+    font: inherit;
+    font-size: 0.92rem;
+    border-radius: 999px;
+    padding: 9px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    background: var(--btn-copy-bg);
+    color: var(--btn-copy-text);
+    border: 1px solid var(--btn-copy-border);
+  }
+  .btn-copy:hover { background: var(--btn-copy-bg-hover); color: var(--btn-copy-text-hover); }
+
+  /* explanation strip */
+  .explanation-strip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--strip-bg);
+    border-radius: 46% 54% 50% 50% / 58% 42% 58% 42%;
+    padding: 12px 16px;
+    margin: 0 0 20px;
+  }
+  .explanation-strip p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .explanation-strip img { flex: none; }
+
+  .footer {
+    color: var(--muted);
+    font-size: 0.8rem;
+    margin-top: 24px;
+  }
+  .footer p { margin: 0 0 8px; }
+  .footer ul { margin: 0 0 8px; padding-left: 1.1em; }
+  .footer a { color: var(--accent); }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    background: var(--toast-bg);
+    color: var(--toast-text);
+    border-radius: 18px;
+    padding: 10px 18px;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 8px 20px var(--card-shadow);
+    z-index: 20;
+    text-align: left;
+  }
+  .toast-lines p { margin: 0; }
+
+  .header-icon { width: 32px; height: auto; display: block; }
+  .banner-icon { width: 40px; height: auto; display: block; }
+
+  @media (min-width: 561px) {
+    main { padding-top: 40px; }
+    .app-header h1 { font-size: 1.8rem; }
+    .header-icon { width: 44px; }
+    .banner-icon-wrap { width: 56px; height: 56px; }
+    .banner-icon { width: 56px; }
+    .card { padding: 22px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .banner-icon.spinning { animation: none; }
+    .sound-glyph span { animation: none; height: 8px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header class="app-header">
+    <span class="header-icon-wrap">
+      <img src="assets/uninse_sparkle.png" alt="キラキラした光に囲まれて落ち着いているウニンセ" width="32" height="28" class="header-icon" id="headerIcon">
+    </span>
+    <h1 class="brush"><span>Uni?! 翻訳</span></h1>
+  </header>
+
+  <section class="input-card card">
+    <div class="chip-row" role="group" aria-label="翻訳の向き">
+      <button type="button" class="chip" id="chipJaToUni" aria-pressed="true">日本語 → ウニ語</button>
+      <button type="button" class="swap-btn" id="swapBtn" aria-label="向きを入れ替える">⇄</button>
+      <button type="button" class="chip" id="chipUniToJa" aria-pressed="false">ウニ語 → 日本語</button>
+    </div>
+
+    <textarea id="srcInput" aria-label="ここに書く（何語でもOK）" placeholder="うにです"></textarea>
+
+    <div class="icon-row">
+      <button type="button" class="icon-btn" id="clearBtn">クリア</button>
+    </div>
+
+    <button type="button" class="translate-btn" id="translateBtn">訳す</button>
+  </section>
+
+  <div id="revealRegion" aria-live="polite">
+    <section class="banner" id="banner" hidden>
+      <span class="banner-icon-wrap">
+        <img src="assets/uninse_sparkle.png" alt="キラキラした光に囲まれて落ち着いているウニンセ" width="40" height="35" id="bannerIcon" class="banner-icon">
+      </span>
+      <span class="banner-label" id="bannerLabel"></span>
+      <span class="sound-label" id="soundLabel" hidden aria-hidden="true" tabindex="-1">
+        <span class="sound-glyph"><span></span><span></span><span></span></span>
+        ウニ語読み上げ
+      </span>
+    </section>
+
+    <section class="result-card card" id="resultCard">
+      <div class="send-actions" id="sendActions">
+        <button type="button" class="btn-copy" id="urlCopyBtn">URLをコピー</button>
+      </div>
+
+      <p class="result-empty" id="resultEmpty">訳すとここに現れます</p>
+      <p class="result-text" id="resultText" hidden></p>
+      <p class="sr-only" id="resultSummary"></p>
+
+      <div id="flusteredNote" hidden></div>
+    </section>
+  </div>
+
+  <section id="explanationStrip" hidden></section>
+
+  <footer class="footer">
+    <ul>
+      <li>イラスト：Minmi（ウニンセ・青いバラ） <a href="https://seiga.nicovideo.jp/seiga/im11745441" target="_blank" rel="noopener">https://seiga.nicovideo.jp/seiga/im11745441</a></li>
+      <li>イラスト：Minmi（キラキラ・得意げ・はじけ・慌て・泣き顔） <a href="https://www.nicovideo.jp/watch/sm46045293" target="_blank" rel="noopener">https://www.nicovideo.jp/watch/sm46045293</a></li>
+    </ul>
+    <p>音声：VOICEVOX:猫使ビィ</p>
+  </footer>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<audio id="uniAudio" preload="auto" hidden></audio>
+
+<script src="uni.js"></script>
+<script src="voice.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  // ---- constants / microcopy (EXP §8) ------------------------------------
+  var SMUG_LINES = ["うにー。", "まかせて、うに。", "ぜんぶ言えたうに。"];
+  var FLUSTERED_LINES = ["読めないところがあったうに…"];
+  var EMPTY_HINT_LINES = ["なにかかいてくださいますよ", "うに。"];
+  var COPY_OK = "コピーしました";
+  var COPY_FAIL = "コピーできませんでした";
+
+  var ILLUST_ALT = {
+    sparkle: "キラキラした光に囲まれて落ち着いているウニンセ",
+    smug: "目を細めて頬を染め、得意げなウニンセ",
+    flustered: "汗をかいて慌てているウニンセ",
+    crying: "涙を流し、震えているウニンセ",
+  };
+
+  // ---- DOM refs -----------------------------------------------------------
+  var $ = function (id) { return document.getElementById(id); };
+  var chipJaToUni = $("chipJaToUni");
+  var chipUniToJa = $("chipUniToJa");
+  var swapBtn = $("swapBtn");
+  var srcInput = $("srcInput");
+  var clearBtn = $("clearBtn");
+  var translateBtn = $("translateBtn");
+  var banner = $("banner");
+  var bannerIcon = $("bannerIcon");
+  var bannerLabel = $("bannerLabel");
+  var soundLabel = $("soundLabel");
+  var resultEmpty = $("resultEmpty");
+  var resultText = $("resultText");
+  var resultSummary = $("resultSummary");
+  var flusteredNote = $("flusteredNote");
+  var sendActions = $("sendActions");
+  var urlCopyBtn = $("urlCopyBtn");
+  var explanationStrip = $("explanationStrip");
+  var toast = $("toast");
+  var audioEl = $("uniAudio");
+
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---- state ----------------------------------------------------------------
+  var direction = "ja2uni"; // or "uni2ja"
+  var toastTimer = null;
+
+  function img(name, extraAttrs) {
+    var i = document.createElement("img");
+    i.src = "assets/uninse_" + name + ".png";
+    i.alt = ILLUST_ALT[name];
+    for (var k in extraAttrs) i.setAttribute(k, extraAttrs[k]);
+    return i;
+  }
+
+  function wrapWithArtStroke(imageEl) {
+    var wrap = document.createElement("span");
+    wrap.className = "art-stroke";
+    wrap.appendChild(imageEl);
+    return wrap;
+  }
+
+  // ---- sound: ウニ語読み上げ (EXP §3, SPEC §7) -----------------------------
+  var CLIP_KEYS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "n", "N"];
+  var clipPCM = {}; // key -> trimmed Int16Array
+  var clipsReady = false;
+  var audioCtx = null;
+  var currentBlobUrl = null;
+  var SPIN_MIN_MS = 600; // shared with the CSS spin duration and the sound's leading silence
+
+  function base64ToBytes(b64) {
+    var bin = atob(b64);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+
+  function floatTo16BitPCM(f32) {
+    var out = new Int16Array(f32.length);
+    for (var i = 0; i < f32.length; i++) {
+      var s = Math.max(-1, Math.min(1, f32[i]));
+      out[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+    }
+    return out;
+  }
+
+  function trimSilence(int16, keepMs, sampleRate) {
+    var threshold = 400; // near-silence cutoff, well under normal speech amplitude
+    var n = int16.length;
+    var start = 0, end = n;
+    while (start < n && Math.abs(int16[start]) < threshold) start++;
+    while (end > start && Math.abs(int16[end - 1]) < threshold) end--;
+    var keep = Math.round((keepMs / 1000) * sampleRate);
+    var newStart = Math.max(0, start - keep);
+    var newEnd = Math.min(n, end + keep);
+    if (newStart >= newEnd) return int16; // fully silent clip: leave untouched, defensive only
+    return int16.slice(newStart, newEnd);
+  }
+
+  (function decodeClipsAtLoad() {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC || !window.UniVoice || !window.UniVoice.clips) return;
+    try {
+      audioCtx = new AC();
+    } catch (e) {
+      return;
+    }
+    var promises = CLIP_KEYS.map(function (key) {
+      var b64 = window.UniVoice.clips[key];
+      if (!b64) return Promise.resolve();
+      var bytes = base64ToBytes(b64);
+      return audioCtx.decodeAudioData(bytes.buffer.slice(0)).then(function (audioBuffer) {
+        var pcm = floatTo16BitPCM(audioBuffer.getChannelData(0));
+        clipPCM[key] = trimSilence(pcm, 10, audioBuffer.sampleRate);
+      }).catch(function () { /* leave this key unresolved; treated as not-ready overall */ });
+    });
+    Promise.all(promises).then(function () { clipsReady = true; });
+  })();
+
+  function silenceInt16(ms, sampleRate) {
+    return new Int16Array(Math.round((ms / 1000) * sampleRate));
+  }
+
+  // 60ms between digits of one character; 150ms before/after ん; 150ms
+  // before the final ン (owner spec).
+  function gapMsBetween(prevKey, nextKey) {
+    if (nextKey === "n" || nextKey === "N") return 150;
+    if (prevKey === "n") return 150;
+    return 60;
+  }
+
+  function stopSound() {
+    try { audioEl.pause(); } catch (e) {}
+    try { audioEl.currentTime = 0; } catch (e) {}
+    if (currentBlobUrl) {
+      URL.revokeObjectURL(currentBlobUrl);
+      currentBlobUrl = null;
+    }
+  }
+
+  function computeSoundKeys(raw) {
+    if (direction === "ja2uni") {
+      return Uni.soundKeysForEncode(raw);
+    }
+    var d = Uni.decode(raw);
+    if (d.secretTrick) return Uni.soundKeysForEncode("たる");
+    return Uni.soundKeysForDecode(raw);
+  }
+
+  function playSound(keys) {
+    if (!clipsReady || !audioCtx || !keys || keys.length === 0) {
+      stopSound();
+      return;
+    }
+    var sampleRate = audioCtx.sampleRate;
+    var buffers = [];
+    for (var i = 0; i < keys.length; i++) {
+      var pcm = clipPCM[keys[i]];
+      if (!pcm) { stopSound(); return; } // a clip failed to decode: stay silent
+      buffers.push(pcm);
+      if (i < keys.length - 1) {
+        buffers.push(silenceInt16(gapMsBetween(keys[i], keys[i + 1]), sampleRate));
+      }
+    }
+    var wavBytes = Uni.buildWav(buffers, {
+      sampleRate: sampleRate,
+      leadingSilenceMs: SPIN_MIN_MS,
+      gapMs: 0,
+      capSeconds: 60,
+      fadeSeconds: 0.5,
+    });
+    var blob = new Blob([wavBytes], { type: "audio/wav" });
+    var url = URL.createObjectURL(blob);
+    if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
+    currentBlobUrl = url;
+    audioEl.src = url;
+    var p = audioEl.play();
+    if (p && typeof p.catch === "function") p.catch(function () { /* silence, not error */ });
+  }
+
+  audioEl.addEventListener("play", function () { soundLabel.hidden = false; });
+  audioEl.addEventListener("pause", function () { soundLabel.hidden = true; });
+  audioEl.addEventListener("ended", function () { soundLabel.hidden = true; });
+
+  // ---- direction / chips ------------------------------------------------
+  function setDirection(next, opts) {
+    opts = opts || {};
+    if (direction === next && !opts.force) return;
+    direction = next;
+    chipJaToUni.setAttribute("aria-pressed", String(direction === "ja2uni"));
+    chipUniToJa.setAttribute("aria-pressed", String(direction === "uni2ja"));
+    if (direction === "ja2uni") {
+      srcInput.setAttribute("aria-label", "ここに書く（何語でもOK）");
+      srcInput.placeholder = "うにです";
+      sendActions.hidden = false;
+    } else {
+      srcInput.setAttribute("aria-label", "ウニ語を貼る");
+      srcInput.placeholder = "うウーうにぃウにぃウうーんうウーうにぃウうーにウーン";
+      sendActions.hidden = true;
+    }
+  }
+
+  chipJaToUni.addEventListener("click", function () { stopSound(); setDirection("ja2uni"); });
+  chipUniToJa.addEventListener("click", function () { stopSound(); setDirection("uni2ja"); });
+  swapBtn.addEventListener("click", function () {
+    stopSound();
+    var next = direction === "ja2uni" ? "uni2ja" : "ja2uni";
+    var carried = resultText.hidden ? "" : resultText.textContent;
+    setDirection(next, { force: true });
+    srcInput.value = carried;
+    clearResultDisplay();
+  });
+
+  // ---- clear ---------------------------------------------------------------
+  clearBtn.addEventListener("click", function () {
+    stopSound();
+    srcInput.value = "";
+    clearResultDisplay();
+    srcInput.focus();
+  });
+
+  srcInput.addEventListener("input", function () {
+    stopSound();
+  });
+
+  // ---- translate button ---------------------------------------------------
+  translateBtn.addEventListener("click", function () {
+    runTranslateOrHint();
+  });
+
+  function runTranslateOrHint() {
+    if (srcInput.value.trim() === "") {
+      stopSound();
+      showHintToast(EMPTY_HINT_LINES);
+      return;
+    }
+    runTranslate();
+  }
+
+  // ---- core translate ------------------------------------------------------
+  function clearResultDisplay() {
+    banner.hidden = true;
+    resultText.hidden = true;
+    resultText.textContent = "";
+    resultSummary.textContent = "";
+    resultEmpty.hidden = false;
+    flusteredNote.hidden = true;
+    flusteredNote.innerHTML = "";
+    // EXP §2: 「URLをコピー」 is on screen from the start in the 日本語 → ウニ語 direction
+    sendActions.hidden = direction !== "ja2uni";
+    explanationStrip.hidden = true;
+    explanationStrip.innerHTML = "";
+  }
+
+  function runTranslate() {
+    var raw = srcInput.value;
+
+    // Sound starts synchronously inside this click handler (iOS requires
+    // this), before the spin's visual delay.
+    var keys = computeSoundKeys(raw);
+    playSound(keys);
+
+    if (reduceMotion) {
+      applyResult(raw);
+    } else {
+      spinThenShow(raw);
+    }
+  }
+
+  function spinThenShow(raw) {
+    bannerIcon.classList.add("spinning");
+    banner.hidden = false;
+    bannerLabel.textContent = direction === "ja2uni" ? "ウニ語にしました" : "日本語にしました";
+    setTimeout(function () {
+      applyResult(raw);
+      bannerIcon.classList.remove("spinning");
+    }, SPIN_MIN_MS);
+  }
+
+  function applyResult(raw) {
+    if (direction === "ja2uni") applyEncode(raw); else applyDecode(raw);
+  }
+
+  function applyEncode(raw) {
+    var uninseText = Uni.encode(raw);
+
+    banner.hidden = false;
+    bannerLabel.textContent = "ウニ語にしました";
+    resultEmpty.hidden = true;
+    resultText.hidden = false;
+    resultText.textContent = uninseText;
+    var n = Array.from(uninseText).length;
+    resultSummary.textContent = "ウニ語、" + n + "字";
+
+    flusteredNote.hidden = true;
+    flusteredNote.innerHTML = "";
+
+    sendActions.hidden = false;
+
+    // explanation strip — only the smug category exists in this direction now
+    explanationStrip.hidden = false;
+    explanationStrip.innerHTML = "";
+    var smugIcon = img("smug", { width: "32", height: "28" });
+    explanationStrip.appendChild(wrapWithArtStroke(smugIcon));
+    var stripP = document.createElement("p");
+    stripP.textContent = SMUG_LINES[n % SMUG_LINES.length];
+    explanationStrip.appendChild(stripP);
+  }
+
+  function applyDecode(raw) {
+    var result = Uni.decode(raw);
+    var totalFailure = result.spanCount !== undefined && result.invalid.length === result.spanCount && result.spanCount > 0;
+    var hasInvalid = result.invalid.length > 0;
+    var outputText = totalFailure ? "ウニ語として読み取れませんでした。" : result.text;
+
+    banner.hidden = false;
+    bannerLabel.textContent = "日本語にしました";
+    resultEmpty.hidden = true;
+    resultSummary.textContent = "";
+    if (totalFailure) {
+      // EXP §6: total failure is a single "can't read this" feeling (the
+      // message + uninse_flustered.png), not a normal result line plus a
+      // separate repeating caption -- so the plain result text is left out
+      // here and the flustered-note block below carries the message once.
+      resultText.hidden = true;
+      resultText.textContent = "";
+    } else {
+      resultText.hidden = false;
+      resultText.textContent = outputText;
+    }
+
+    sendActions.hidden = true;
+
+    flusteredNote.hidden = true;
+    flusteredNote.innerHTML = "";
+    if (hasInvalid) {
+      flusteredNote.hidden = false;
+      var fIcon = img("flustered", { width: "40", height: "37" });
+      flusteredNote.appendChild(wrapWithArtStroke(fIcon));
+      var textWrap = document.createElement("div");
+      var caption = document.createElement("p");
+      if (totalFailure) {
+        caption.textContent = "ウニ語として読み取れませんでした。";
+      } else {
+        var firstIndex = result.invalid[0].index;
+        caption.textContent = "読み取れない並びがあります（" + firstIndex + "文字目あたり）。ん・ンの区切りを確かめてください。";
+        var rawList = document.createElement("span");
+        rawList.className = "flustered-raw";
+        rawList.textContent = result.invalid.map(function (i) { return i.raw; }).join("　");
+        textWrap.appendChild(rawList);
+      }
+      textWrap.insertBefore(caption, textWrap.firstChild);
+      flusteredNote.appendChild(textWrap);
+    }
+
+    explanationStrip.hidden = false;
+    explanationStrip.innerHTML = "";
+    var stripP = document.createElement("p");
+    if (hasInvalid) {
+      var flIcon = img("flustered", { width: "32", height: "29" });
+      explanationStrip.appendChild(wrapWithArtStroke(flIcon));
+      stripP.textContent = FLUSTERED_LINES[0];
+    } else {
+      var n = Array.from(outputText).length;
+      var smugIcon = img("smug", { width: "32", height: "28" });
+      explanationStrip.appendChild(wrapWithArtStroke(smugIcon));
+      stripP.textContent = SMUG_LINES[n % SMUG_LINES.length];
+    }
+    explanationStrip.appendChild(stripP);
+  }
+
+  // ---- share URL (SPEC §6) --------------------------------------------------
+  function shareUrl(sourceText) {
+    return location.origin + location.pathname + "?" + Uni.packQuery(sourceText);
+  }
+
+  // ---- URL copy --------------------------------------------------------------
+  urlCopyBtn.addEventListener("click", function () {
+    if (srcInput.value.trim() === "") {
+      showHintToast(EMPTY_HINT_LINES);
+      return;
+    }
+    var url = shareUrl(srcInput.value);
+    copyText(url).then(function (ok) {
+      showToast(ok ? COPY_OK : COPY_FAIL, ok ? null : "crying");
+    });
+  });
+
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).then(function () { return true; }).catch(function () {
+        return fallbackCopy(text);
+      });
+    }
+    return Promise.resolve(fallbackCopy(text));
+  }
+  function fallbackCopy(text) {
+    try {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // ---- toast -------------------------------------------------------------
+  function showToast(message, icon) {
+    if (toastTimer) clearTimeout(toastTimer);
+    toast.innerHTML = "";
+    if (icon === "crying") {
+      toast.appendChild(img("crying", { width: "24", height: "19" }));
+    }
+    toast.appendChild(document.createTextNode(message));
+    toast.hidden = false;
+    toastTimer = setTimeout(function () { toast.hidden = true; }, 2600);
+  }
+
+  function showHintToast(lines) {
+    if (toastTimer) clearTimeout(toastTimer);
+    toast.innerHTML = "";
+    var wrap = document.createElement("span");
+    wrap.className = "toast-lines";
+    for (var i = 0; i < lines.length; i++) {
+      var p = document.createElement("p");
+      p.textContent = lines[i];
+      wrap.appendChild(p);
+    }
+    toast.appendChild(wrap);
+    toast.hidden = false;
+    toastTimer = setTimeout(function () { toast.hidden = true; }, 2600);
+  }
+
+  // ---- share link on load (SPEC §6.3) ---------------------------------------
+  (function loadFromQuery() {
+    var search = location.search || "";
+    if (search.charAt(0) !== "?" || search.length <= 1) {
+      setDirection("ja2uni", { force: true });
+      return;
+    }
+    var raw = search.slice(1).split("&")[0];
+    var unpacked = raw === "" ? null : Uni.unpackQuery(raw);
+    if (unpacked !== null) {
+      setDirection("uni2ja", { force: true });
+      srcInput.value = Uni.encode(unpacked);
+    } else {
+      // Missing, malformed, or undecodable: open exactly as if there were
+      // no query at all (owner, 2026-09-27, second round) — silent.
+      setDirection("ja2uni", { force: true });
+    }
+  })();
+})();
+</script>
+</body>
+</html>

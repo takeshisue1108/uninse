@@ -3,10 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
 <title>Uni?! 翻訳</title>
 <meta name="description" content="ウニ語と日本語の相互翻訳。トリッカルのファンが作った非公式の言語です。">
 <style>
   :root {
+    color-scheme: light; /* 端末がダークモードでも nani? に合わせた明るい配色だけ（owner, 2026-09-27） */
     --bg: #f1f7fa;
     --bg-dot: rgba(43, 58, 79, 0.10);
     --field: #ffffff;
@@ -47,92 +49,6 @@
 
     --stroke-art: transparent;
     --shadow-on-stroke: rgba(255, 255, 255, 0.55);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #12161f;
-      --bg-dot: rgba(210, 220, 235, 0.05);
-      --field: #1b212c;
-      --ink: #e9edf4;
-      --muted: #a6afbd;
-      --line: #7a8798;
-      --card-border: transparent;
-      --card-shadow: rgba(4, 6, 10, 0.55);
-      --chip-bg: #212836;
-      --chip-border: #7a8798;
-      --chip-text: #e9edf4;
-
-      --accent: #8ab4ff;
-      --accent2: #e2918d;
-      --stroke-accent: #1f2b45;
-      --stroke-accent2: #4a2426;
-      --strip-bg: #1f2b45;
-
-      --status-fit: #7fd9a8;
-      --status-nofit: #f2a19c;
-
-      --icon-fg: #a6afbd;
-      --icon-fg-hover: #e9edf4;
-      --icon-bg-hover: rgba(138, 180, 255, 0.14);
-
-      --btn-post-bg: #8ab4ff;
-      --btn-post-bg-hover: #9dc0ff;
-      --btn-post-bg-active: #b0ccff;
-      --btn-post-text: #14161c;
-      --btn-copy-bg: #1b212c;
-      --btn-copy-bg-hover: #4a2426;
-      --btn-copy-border: #e2918d;
-      --btn-copy-text: #e2918d;
-      --btn-copy-text-hover: #e9edf4;
-
-      --toast-bg: #e9edf4;
-      --toast-text: #12161f;
-
-      --stroke-art: #d4d2e2;
-      --shadow-on-stroke: rgba(18, 22, 31, 0.6);
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #12161f;
-    --bg-dot: rgba(210, 220, 235, 0.05);
-    --field: #1b212c;
-    --ink: #e9edf4;
-    --muted: #a6afbd;
-    --line: #7a8798;
-    --card-border: transparent;
-    --card-shadow: rgba(4, 6, 10, 0.55);
-    --chip-bg: #212836;
-    --chip-border: #7a8798;
-    --chip-text: #e9edf4;
-
-    --accent: #8ab4ff;
-    --accent2: #e2918d;
-    --stroke-accent: #1f2b45;
-    --stroke-accent2: #4a2426;
-    --strip-bg: #1f2b45;
-
-    --status-fit: #7fd9a8;
-    --status-nofit: #f2a19c;
-
-    --icon-fg: #a6afbd;
-    --icon-fg-hover: #e9edf4;
-    --icon-bg-hover: rgba(138, 180, 255, 0.14);
-
-    --btn-post-bg: #8ab4ff;
-    --btn-post-bg-hover: #9dc0ff;
-    --btn-post-bg-active: #b0ccff;
-    --btn-post-text: #14161c;
-    --btn-copy-bg: #1b212c;
-    --btn-copy-bg-hover: #4a2426;
-    --btn-copy-border: #e2918d;
-    --btn-copy-text: #e2918d;
-    --btn-copy-text-hover: #e9edf4;
-
-    --toast-bg: #e9edf4;
-    --toast-text: #12161f;
-
-    --stroke-art: #d4d2e2;
-    --shadow-on-stroke: rgba(18, 22, 31, 0.6);
   }
 
   * { box-sizing: border-box; }
@@ -297,7 +213,7 @@
   }
   .translate-btn:hover { background: var(--btn-post-bg-hover); }
   .translate-btn:active { background: var(--btn-post-bg-active); }
-  /* 「URLをコピー」は「訳す」と同じ見た目（owner, 2026-09-27）。結果カードの一番上なので上の余白だけ詰める */
+  /* 「ウニ語共有URLをコピー」は「訳す」と同じ見た目（owner, 2026-09-27）。結果カードの一番上なので上の余白だけ詰める */
   #urlCopyBtn { margin-top: 0; }
 
   button:focus-visible, textarea:focus-visible, a:focus-visible {
@@ -521,7 +437,7 @@
 
     <section class="result-card card" id="resultCard">
       <div class="send-actions" id="sendActions">
-        <button type="button" class="translate-btn" id="urlCopyBtn">URLをコピー</button>
+        <button type="button" class="translate-btn" id="urlCopyBtn">ウニ語共有URLをコピー</button>
         <div class="url-note">
           <p>ウニ語はウニンセにしかよめないので、その点ご配慮くださいますよ</p>
           <p>うに</p>
@@ -799,7 +715,7 @@
     resultEmpty.hidden = false;
     flusteredNote.hidden = true;
     flusteredNote.innerHTML = "";
-    // EXP §2: 「URLをコピー」 is on screen from the start in the 日本語 → ウニ語 direction
+    // EXP §2: 「ウニ語共有URLをコピー」 is on screen from the start in the 日本語 → ウニ語 direction
     sendActions.hidden = direction !== "ja2uni";
     explanationStrip.hidden = true;
     explanationStrip.innerHTML = "";

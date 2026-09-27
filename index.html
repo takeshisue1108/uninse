@@ -907,10 +907,17 @@
   }
 
   // ---- share link on load (SPEC §6.3) ---------------------------------------
+  // デフォルトで開いたときに入れておく日本語（owner, 2026-09-27）。訳すまでは訳さない
+  var DEFAULT_TEXT = "あまり活発になりすぎないよ\nうに\nしましょう";
+  function openDefault() {
+    setDirection("ja2uni", { force: true });
+    srcInput.value = DEFAULT_TEXT;
+  }
+
   (function loadFromQuery() {
     var search = location.search || "";
     if (search.charAt(0) !== "?" || search.length <= 1) {
-      setDirection("ja2uni", { force: true });
+      openDefault();
       return;
     }
     var raw = search.slice(1).split("&")[0];
@@ -921,7 +928,7 @@
     } else {
       // Missing, malformed, or undecodable: open exactly as if there were
       // no query at all (owner, 2026-09-27, second round) — silent.
-      setDirection("ja2uni", { force: true });
+      openDefault();
     }
   })();
 })();

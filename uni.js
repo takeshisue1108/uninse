@@ -5,28 +5,23 @@
 (function (root) {
   "use strict";
 
-  // §3.1 — the digit table (owner, 2026-09-29). Every digit is an う-like
-  // character followed by an に-like one, mixing full and half width.
-  // head = upper 2 bits, tail = lower 2 bits.
-  var HEADS = ["う", "ウ", "ｳ", "ｩ"]; // 00, 01, 10, 11
-  var TAILS = ["に", "ニ", "ﾆ", "二"]; // 00, 01, 10, 11
+  // §3.1 — the digit table (owner, 2026-09-29, second change). One character
+  // per hex digit, full and half width mixed. 3 = う and 0 = に, so every
+  // kana (U+30xx) starts with うに.
+  var DIGITS = ["に", "ニ", "ﾆ", "う", "ウ", "ｳ", "ｩ", "二",
+                "ッ", "っ", "ｯ", "ィ", "ぃ", "ｨ", "ー", "ｰ"]; // 0-f
   var SEP = "ﾝ"; // between characters (half width)
   var END = "ン"; // once, at the very end
   var BOUNDARY_RE = /[んンﾝ]/; // decode accepts any of the three as a boundary
 
-  // digit (0-15) -> 2-character ウニ語 token
+  // digit (0-15) -> 1-character ウニ語 token
   function digitToDigitToken(d) {
-    var head = (d >> 2) & 0b11;
-    var tail = d & 0b11;
-    return HEADS[head] + TAILS[tail];
+    return DIGITS[d];
   }
 
-  // reverse lookup: (head, tail) -> 0-15, or -1 if not a valid pair
-  function reverseLookup(head, tail) {
-    var h = HEADS.indexOf(head);
-    var t = TAILS.indexOf(tail);
-    if (h === -1 || t === -1) return -1;
-    return (h << 2) | t;
+  // reverse lookup: one character -> 0-15, or -1 if not in the table
+  function reverseLookup(ch) {
+    return DIGITS.indexOf(ch);
   }
 
   var HEX_CHARS = "0123456789abcdef";
@@ -95,14 +90,10 @@
 
       if (span === "") {
         ok = false;
-      } else if (span.length % 2 !== 0) {
-        ok = false;
       } else {
         var hexDigits = "";
-        for (var g = 0; g * 2 < span.length && ok; g++) {
-          var head = span.charAt(g * 2);
-          var tail = span.charAt(g * 2 + 1);
-          var digit = reverseLookup(head, tail);
+        for (var g = 0; g < span.length && ok; g++) {
+          var digit = reverseLookup(span.charAt(g));
           if (digit === -1) {
             ok = false;
             break;
@@ -140,8 +131,8 @@
     return { text: restored, invalid: invalid, secretTrick: false, spanCount: spans.length };
   }
 
-  // §3.4 — matching is exact: full-width ウ and half-width ｳ are different
-  // heads, and ニ, ﾆ and the kanji 二 are different tails. No width folding.
+  // §3.4 — matching is exact: ウ and ｳ, ー and ｰ, ッ and ｯ are different
+  // digits, and the ASCII hyphen is not ｰ. No width folding.
 
   // §3.5 — sound-sequence functions (pure). A "key" is one of the 18
   // strings "0".."9","a".."f","n","N" — the same keys voice.js's clip map
@@ -183,15 +174,13 @@
 
   function spanIsPlayable(span) {
     // §3.5: "playable" ignores the final code-point-range checks — a span
-    // whose head/tail characters all match is playable even if it later
+    // whose characters are all in the table is playable even if it later
     // turns out to encode a lone surrogate or an out-of-range code point,
     // since the sound only cares about which of the 16 digit clips to play.
-    if (span === "" || span.length % 2 !== 0) return null;
+    if (span === "") return null;
     var hexDigits = "";
-    for (var g = 0; g * 2 < span.length; g++) {
-      var head = span.charAt(g * 2);
-      var tail = span.charAt(g * 2 + 1);
-      var digit = reverseLookup(head, tail);
+    for (var g = 0; g < span.length; g++) {
+      var digit = reverseLookup(span.charAt(g));
       if (digit === -1) return null;
       hexDigits += HEX_CHARS[digit];
     }
@@ -385,8 +374,7 @@
     decode: decode,
     digitToDigitToken: digitToDigitToken,
     reverseLookup: reverseLookup,
-    HEADS: HEADS,
-    TAILS: TAILS,
+    DIGITS: DIGITS,
 
     soundKeysForEncode: soundKeysForEncode,
     soundKeysForDecode: soundKeysForDecode,

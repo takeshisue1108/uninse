@@ -5,11 +5,16 @@
 (function (root) {
   "use strict";
 
-  // §3.1 — the digit table. head = upper 2 bits, tail = lower 2 bits.
-  var HEADS = ["う", "ウ", "に", "二"]; // 00, 01, 10, 11
-  var TAILS = ["にぃ", "ニィ", "うー", "ウー"]; // 00, 01, 10, 11
+  // §3.1 — the digit table (owner, 2026-09-29). Every digit is an う-like
+  // character followed by an に-like one, mixing full and half width.
+  // head = upper 2 bits, tail = lower 2 bits.
+  var HEADS = ["う", "ウ", "ｳ", "ｩ"]; // 00, 01, 10, 11
+  var TAILS = ["に", "ニ", "ﾆ", "二"]; // 00, 01, 10, 11
+  var SEP = "ﾝ"; // between characters (half width)
+  var END = "ン"; // once, at the very end
+  var BOUNDARY_RE = /[んンﾝ]/; // decode accepts any of the three as a boundary
 
-  // digit (0-15) -> 3-character ウニ語 token
+  // digit (0-15) -> 2-character ウニ語 token
   function digitToDigitToken(d) {
     var head = (d >> 2) & 0b11;
     var tail = d & 0b11;
@@ -42,7 +47,7 @@
       }
       tokens.push(tok);
     }
-    return tokens.join("ん") + "ン";
+    return tokens.join(SEP) + END;
   }
 
   // whitespace stripped in decode's step 1 (global strip, not a trim)
@@ -66,7 +71,7 @@
       return { text: "", invalid: [], secretTrick: false };
     }
 
-    // Step 2 — split into character spans on ん/ン (both are boundaries).
+    // Step 2 — split into character spans on ん/ン/ﾝ (all are boundaries).
     // Encode always ends the whole message with one terminating marker
     // (§3.2: "ん between characters, ン once, at the very end"), so a
     // naive split leaves one trailing empty element that represents
@@ -75,7 +80,7 @@
     // the string still produces a genuine empty span (invalid), and a
     // missing final marker (EXP §6's leniency) already leaves no trailing
     // empty element to drop, so both cases are unaffected by this.
-    var spans = normalized.split(/[んン]/);
+    var spans = normalized.split(BOUNDARY_RE);
     if (spans.length > 1 && spans[spans.length - 1] === "") {
       spans.pop();
     }
@@ -90,13 +95,13 @@
 
       if (span === "") {
         ok = false;
-      } else if (span.length % 3 !== 0) {
+      } else if (span.length % 2 !== 0) {
         ok = false;
       } else {
         var hexDigits = "";
-        for (var g = 0; g * 3 < span.length && ok; g++) {
-          var head = span.substr(g * 3, 1);
-          var tail = span.substr(g * 3 + 1, 2);
+        for (var g = 0; g * 2 < span.length && ok; g++) {
+          var head = span.charAt(g * 2);
+          var tail = span.charAt(g * 2 + 1);
           var digit = reverseLookup(head, tail);
           if (digit === -1) {
             ok = false;
@@ -135,9 +140,8 @@
     return { text: restored, invalid: invalid, secretTrick: false, spanCount: spans.length };
   }
 
-  // §3.4 — head-position matching is exact-string against HEADS (kanji 二,
-  // not katakana ニ, which only ever appears inside the tail spelling ニィ).
-  // No extra leniency is added here; already implemented by reverseLookup.
+  // §3.4 — matching is exact: full-width ウ and half-width ｳ are different
+  // heads, and ニ, ﾆ and the kanji 二 are different tails. No width folding.
 
   // §3.5 — sound-sequence functions (pure). A "key" is one of the 18
   // strings "0".."9","a".."f","n","N" — the same keys voice.js's clip map
@@ -158,7 +162,7 @@
 
   function splitIntoSpansWithSeparators(normalized) {
     // Same split as decode()'s Step 2, but each span keeps its own trailing
-    // separator character ("n" for ん, "N" for ン, or null if none follows
+    // separator character ("n" for ﾝ or ん, "N" for ン, or null if none follows
     // — either because the string simply ended, or because this is the
     // artifact trailing element after the final terminator, which carries
     // no body and is dropped exactly like decode() drops it).
@@ -166,8 +170,8 @@
     var body = "";
     for (var i = 0; i < normalized.length; i++) {
       var ch = normalized[i];
-      if (ch === "ん" || ch === "ン") {
-        out.push({ body: body, sep: ch === "ん" ? "n" : "N" });
+      if (BOUNDARY_RE.test(ch)) {
+        out.push({ body: body, sep: ch === END ? "N" : "n" });
         body = "";
       } else {
         body += ch;
@@ -182,11 +186,11 @@
     // whose head/tail characters all match is playable even if it later
     // turns out to encode a lone surrogate or an out-of-range code point,
     // since the sound only cares about which of the 16 digit clips to play.
-    if (span === "" || span.length % 3 !== 0) return null;
+    if (span === "" || span.length % 2 !== 0) return null;
     var hexDigits = "";
-    for (var g = 0; g * 3 < span.length; g++) {
-      var head = span.substr(g * 3, 1);
-      var tail = span.substr(g * 3 + 1, 2);
+    for (var g = 0; g * 2 < span.length; g++) {
+      var head = span.charAt(g * 2);
+      var tail = span.charAt(g * 2 + 1);
       var digit = reverseLookup(head, tail);
       if (digit === -1) return null;
       hexDigits += HEX_CHARS[digit];
@@ -298,55 +302,80 @@
   }
 
   // --- Share link query (SPEC §6) ----------------------------------------
-  var LETTERS = "abcdefghijklmnop"; // 16 letters, index 0-15
-
-  function digitToLetter(d) {
-    return LETTERS[(d + 7) % 16];
-  }
-
-  function letterToDigit(L) {
-    var i = LETTERS.indexOf(L);
-    return i === -1 ? -1 : (i - 7 + 16) % 16;
-  }
+  // Base 32 (owner, 2026-09-29). Each digit is shifted by 7 (mod 32). The
+  // last digit of each character comes from a second alphabet, so no
+  // separator is needed between characters.
+  var MID = "0123456789abcdefghijklmnopqrstuv"; // digits before the last
+  var LAST = "wxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"; // the last digit
+  var SHIFT = 7;
 
   // §6.1 — packQuery(text)
   function packQuery(text) {
     var chars = Array.from(text); // code-point-aware, same iteration as encode()
-    var groups = [];
+    var out = "";
     for (var i = 0; i < chars.length; i++) {
-      var cp = chars[i].codePointAt(0);
-      var hex = cp.toString(16); // lowercase, no leading zeros
-      var g = "";
-      for (var j = 0; j < hex.length; j++) {
-        g += digitToLetter(parseInt(hex[j], 16));
+      var b32 = chars[i].codePointAt(0).toString(32); // no leading zeros
+      for (var j = 0; j < b32.length; j++) {
+        var d = (parseInt(b32[j], 32) + SHIFT) % 32;
+        out += j === b32.length - 1 ? LAST[d] : MID[d];
       }
-      groups.push(g);
     }
-    return groups.join("z"); // per-character groups joined by the letter "z"
+    return out;
   }
 
-  var QUERY_SHAPE_RE = /^[a-p]+(z[a-p]+)*$/;
+  var QUERY_SHAPE_RE = /^([0-9a-v]*[w-zA-Z_-])+$/;
+
+  function codePointOrNull(cp) {
+    if (cp > 0x10ffff) return null; // out of Unicode range
+    if (cp >= 0xd800 && cp <= 0xdfff) return null; // lone surrogate
+    return String.fromCodePoint(cp);
+  }
 
   // §6.2 — unpackQuery(raw). raw = the query content, "?" already stripped,
   // and everything from the first "&" onward already cut off by the caller.
   function unpackQuery(raw) {
-    if (typeof raw !== "string" || !QUERY_SHAPE_RE.test(raw)) return null;
+    if (typeof raw !== "string") return null;
+    if (LEGACY_QUERY_SHAPE_RE.test(raw)) return unpackLegacyQuery(raw);
+    if (!QUERY_SHAPE_RE.test(raw)) return null;
+    var chars = [];
+    var cp = 0;
+    var digits = 0;
+    for (var i = 0; i < raw.length; i++) {
+      var c = raw[i];
+      var last = LAST.indexOf(c) !== -1;
+      var d = ((last ? LAST : MID).indexOf(c) - SHIFT + 32) % 32;
+      if (digits === 0 && d === 0 && !last) return null; // leading zero
+      cp = cp * 32 + d;
+      digits++;
+      if (digits > 5) return null; // longer than any code point
+      if (last) {
+        var ch = codePointOrNull(cp);
+        if (ch === null) return null;
+        chars.push(ch);
+        cp = 0;
+        digits = 0;
+      }
+    }
+    return chars.join("");
+  }
+
+  // §6.2 — links made before 2026-09-29: hex digits as a-p shifted by 7,
+  // characters joined by "z". A legacy query always ends in a-p and a new
+  // one never does, so the two shapes cannot be confused.
+  var LEGACY_LETTERS = "abcdefghijklmnop";
+  var LEGACY_QUERY_SHAPE_RE = /^[a-p]+(z[a-p]+)*$/;
+
+  function unpackLegacyQuery(raw) {
     var groups = raw.split("z");
     var chars = [];
     for (var i = 0; i < groups.length; i++) {
-      var group = groups[i];
       var hex = "";
-      var bad = false;
-      for (var j = 0; j < group.length; j++) {
-        var d = letterToDigit(group[j]);
-        if (d === -1) { bad = true; break; } // unreachable given the regex above
-        hex += HEX_CHARS[d];
+      for (var j = 0; j < groups[i].length; j++) {
+        hex += HEX_CHARS[(LEGACY_LETTERS.indexOf(groups[i][j]) - 7 + 16) % 16];
       }
-      if (bad) return null;
-      var cp = parseInt(hex, 16);
-      if (cp > 0x10ffff) return null; // out of Unicode range
-      if (cp >= 0xd800 && cp <= 0xdfff) return null; // lone surrogate
-      chars.push(String.fromCodePoint(cp));
+      var ch = codePointOrNull(parseInt(hex, 16));
+      if (ch === null) return null;
+      chars.push(ch);
     }
     return chars.join("");
   }

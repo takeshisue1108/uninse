@@ -599,7 +599,7 @@
     return new Int16Array(Math.round((ms / 1000) * sampleRate));
   }
 
-  // 60ms between digits of one character; 150ms before/after ん; 150ms
+  // 60ms between digits of one character; 150ms before/after ﾝ; 150ms
   // before the final ン (owner spec).
   function gapMsBetween(prevKey, nextKey) {
     if (nextKey === "n" || nextKey === "N") return 150;
@@ -673,7 +673,7 @@
       sendActions.hidden = true;
     } else {
       srcInput.setAttribute("aria-label", "ウニ語を貼る");
-      srcInput.placeholder = "うウーうにぃウにぃウうーんうウーうにぃウうーにウーン";
+      srcInput.placeholder = "う二うにウにウﾆﾝう二うにウﾆｳ二ン";
       sendActions.hidden = true;
     }
   }
@@ -823,7 +823,7 @@
         caption.textContent = "ウニ語として読み取れませんでした。";
       } else {
         var firstIndex = result.invalid[0].index;
-        caption.textContent = "読み取れない並びがあります（" + firstIndex + "文字目あたり）。ん・ンの区切りを確かめてください。";
+        caption.textContent = "読み取れない並びがあります（" + firstIndex + "文字目あたり）。ﾝ・ンの区切りを確かめてください。";
         var rawList = document.createElement("span");
         rawList.className = "flustered-raw";
         rawList.textContent = result.invalid.map(function (i) { return i.raw; }).join("　");
